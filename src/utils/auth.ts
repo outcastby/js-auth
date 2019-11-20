@@ -14,18 +14,17 @@ const MAX_ERROR_COUNT = 5
 let refreshTokenErrorCount = 0
 
 const handleTokenError = (action: Action): any => {
-  const store = Config.get(['jsAuth', 'store'])
-  store
-    .dispatch(refreshToken({ refreshToken: Cookies.getDecrypted('refreshToken') }))
+  const dispatcher = Config.get(['jsAuth', 'dispatcher'])
+  dispatcher(refreshToken({ refreshToken: Cookies.getDecrypted('refreshToken') }))
     .then((resp: object) => {
-      store.dispatch(action)
+      dispatcher(action)
       return resp
     })
     .catch((errors: Dictionary<any>) => {
       if (_.some(errors.message, ['message', 'invalid_refresh_token'])) {
         if (refreshTokenErrorCount < MAX_ERROR_COUNT) {
           refreshTokenErrorCount++
-          store.dispatch(action)
+          dispatcher(action)
         } else {
           logout()
         }
