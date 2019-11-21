@@ -1,7 +1,5 @@
 import _ from 'lodash'
-import { Cookies, Config } from '@outcast.by/js-ext'
-import Dictionary from '../interfaces/Dictionary'
-import Action from '../interfaces/Action'
+import { Cookies, Config, Action, Dictionary } from '@outcast.by/js-ext'
 import { refreshToken } from '../redux/actions'
 
 const logout = (): void => {
@@ -14,17 +12,18 @@ const MAX_ERROR_COUNT = 5
 let refreshTokenErrorCount = 0
 
 const handleTokenError = (action: Action): any => {
-  const dispatcher = Config.get(['jsAuth', 'dispatcher'])
-  dispatcher(refreshToken({ refreshToken: Cookies.getDecrypted('refreshToken') }))
+  const dispatch = Config.get(['jsAuth', 'dispatch'])
+
+  dispatch(refreshToken({ refreshToken: Cookies.getDecrypted(Config.get(['jsAuth', 'refreshTokenKey'])) }))
     .then((resp: object) => {
-      dispatcher(action)
+      dispatch(action)
       return resp
     })
     .catch((errors: Dictionary<any>) => {
       if (_.some(errors.message, ['message', 'invalid_refresh_token'])) {
         if (refreshTokenErrorCount < MAX_ERROR_COUNT) {
           refreshTokenErrorCount++
-          dispatcher(action)
+          dispatch(action)
         } else {
           logout()
         }

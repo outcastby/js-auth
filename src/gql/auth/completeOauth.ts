@@ -1,9 +1,9 @@
 import gql from 'graphql-tag'
 import { Config } from '@outcast.by/js-ext'
-import additionalVariables from '../additionalVariables'
+import AdditionalVariables from '../../core/gql/AdditionalVariables'
 
 export default (): any => gql`
-  mutation CompleteOauth($entity: OauthManagerParams, $oauthData: OauthDataParams ${additionalVariables()}) {
+  mutation CompleteOauth($entity: OauthManagerParams, $oauthData: OauthDataParams ${AdditionalVariables.run()}) {
     completeOauth(entity: $entity, oauthData: $oauthData) {
       ...AuthFields
     }

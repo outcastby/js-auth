@@ -1,29 +1,27 @@
-import Dictionary from '../../interfaces/Dictionary'
+import { Dictionary } from '@outcast.by/js-ext'
 import SignInProps from '../interfaces/SignInProps'
-import performLogin from '../performLogin'
+import PerformLogin from '../oauth/PerformLogin'
 
-const signIn = ({ providerLogin, setCompleteAuth, onSuccess, history }: SignInProps): void => {
+const signIn = ({ setCompleteAuth, onSuccess, pushToHistory }: SignInProps): void => {
   window.FB.getLoginStatus((response: Dictionary<any>) => {
     if (response.status === 'connected') {
-      performLogin({
+      PerformLogin.run({
         oauthData: response.authResponse,
         provider: 'FACEBOOK',
-        providerLogin,
         setCompleteAuth,
         onSuccess,
-        history,
+        pushToHistory,
       })
     } else {
       window.FB.login(
         (response: Dictionary<any>) => {
           if (response.authResponse) {
-            performLogin({
+            PerformLogin.run({
               oauthData: response.authResponse,
               provider: 'FACEBOOK',
-              providerLogin,
               setCompleteAuth,
               onSuccess,
-              history,
+              pushToHistory,
             })
           }
         },

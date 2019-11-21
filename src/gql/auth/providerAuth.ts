@@ -1,12 +1,12 @@
 import gql from 'graphql-tag'
 import { Config } from '@outcast.by/js-ext'
-import additionalVariables from '../additionalVariables'
+import AdditionalVariables from '../../core/gql/AdditionalVariables'
 
 export default (): any => {
   const extraParams = Config.get(['jsAuth', 'extraParams']) ? ', $extraParams: OauthExtraParams' : ''
 
   return gql`
-  mutation providerAuth($payload: Json!, $provider: ProviderTypes! ${extraParams} ${additionalVariables()}) {
+  mutation providerAuth($payload: Json!, $provider: ProviderTypes! ${extraParams} ${AdditionalVariables.run()}) {
     providerAuth(payload: $payload, provider: $provider ${extraParams ? ', extraParams: $extraParams' : ''}) {
       ...AuthFields
     }

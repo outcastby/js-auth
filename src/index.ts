@@ -4,7 +4,6 @@ export {
   signUp,
   forgotPassword,
   restorePassword,
-  providerLogin,
   getTwitterAuthUrl,
   complete,
   logout,

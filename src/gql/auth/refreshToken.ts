@@ -1,9 +1,9 @@
 import gql from 'graphql-tag'
 import { Config } from '@outcast.by/js-ext'
-import additionalVariables from '../additionalVariables'
+import AdditionalVariables from '../../core/gql/AdditionalVariables'
 
 export default (): any => gql`
-  mutation refreshToken($refreshToken: String! ${additionalVariables()}) {
+  mutation refreshToken($refreshToken: String! ${AdditionalVariables.run()}) {
     refreshToken(refreshToken: $refreshToken) {
       ...AuthFields
     }

@@ -1,5 +1,4 @@
-import Dictionary from '../interfaces/Dictionary'
-import Action from '../interfaces/Action'
+import { Action, Dictionary } from '@outcast.by/js-ext'
 import gql from '../gql/auth'
 
 export const SIGN_IN = 'auth/SIGN_IN'
@@ -12,7 +11,16 @@ export const GET_TWITTER_AUTH_URL = 'auth/GET_TWITTER_AUTH_URL'
 export const LOGOUT = 'auth/LOGOUT'
 export const REFRESH_TOKEN = 'auth/REFRESH_TOKEN'
 
-export const signIn = ({ variables: { entity } }: Dictionary<any>): Action => ({
+interface Params<T> {
+  variables: { entity: T }
+}
+
+interface SignIn {
+  email: string
+  password: string
+}
+
+export const signIn = ({ variables: { entity } }: Params<SignIn>): Action => ({
   type: SIGN_IN,
   request: {
     query: gql.signIn(),
@@ -20,7 +28,13 @@ export const signIn = ({ variables: { entity } }: Dictionary<any>): Action => ({
   },
 })
 
-export const signUp = ({ variables }: Dictionary<any>): Action => ({
+interface SignUp {
+  email: string
+  password: string
+  passwordConfirmation: string
+}
+
+export const signUp = ({ variables }: Params<SignUp>): Action => ({
   type: SIGN_UP,
   request: {
     query: gql.signUp(),
@@ -28,7 +42,12 @@ export const signUp = ({ variables }: Dictionary<any>): Action => ({
   },
 })
 
-export const forgotPassword = ({ variables: { entity } }: Dictionary<any>): Action => ({
+interface ForgotPassword {
+  email: string
+  restoreUrl: string
+}
+
+export const forgotPassword = ({ variables: { entity } }: Params<ForgotPassword>): Action => ({
   type: FORGOT_PASSWORD,
   request: {
     query: gql.forgotPassword(),
@@ -36,7 +55,13 @@ export const forgotPassword = ({ variables: { entity } }: Dictionary<any>): Acti
   },
 })
 
-export const restorePassword = ({ variables }: Dictionary<any>): Action => ({
+interface RestorePassword {
+  restoreHash: string
+  password: string
+  passwordConfirmation: string
+}
+
+export const restorePassword = ({ variables }: Params<RestorePassword>): Action => ({
   type: RESTORE_PASSWORD,
   request: {
     query: gql.restorePassword(),
@@ -44,17 +69,25 @@ export const restorePassword = ({ variables }: Dictionary<any>): Action => ({
   },
 })
 
-export const providerLogin = (variables: Dictionary<any>): Action => {
-  return {
-    type: PROVIDER_LOGIN,
-    request: {
-      query: gql.providerAuth(),
-      variables,
-    },
-  }
+interface ProviderLogin {
+  payload: string
+  provider: string
+  extraParams: object | null
 }
 
-export const getTwitterAuthUrl = (variables: Dictionary<any>): Action => ({
+export const providerLogin = (variables: ProviderLogin): Action => ({
+  type: PROVIDER_LOGIN,
+  request: {
+    query: gql.providerAuth(),
+    variables,
+  },
+})
+
+interface GetTwitterAuthUrl {
+  getTwitterAuthUrl: string
+}
+
+export const getTwitterAuthUrl = (variables: GetTwitterAuthUrl): Action => ({
   type: GET_TWITTER_AUTH_URL,
   request: {
     query: gql.twitterAuthenticateUrl(),
@@ -62,7 +95,14 @@ export const getTwitterAuthUrl = (variables: Dictionary<any>): Action => ({
   },
 })
 
-export const complete = ({ variables }: Dictionary<any>): Action => ({
+interface CompleteParams {
+  variables: {
+    entity: Dictionary<any>
+    oauthData: { uid: string; provider: string }
+  }
+}
+
+export const complete = ({ variables }: CompleteParams): Action => ({
   type: COMPLETE,
   request: {
     query: gql.completeOauth(),
@@ -74,7 +114,11 @@ export const logout = (): Action => ({
   type: LOGOUT,
 })
 
-export const refreshToken = (variables: Dictionary<any>): Action => ({
+interface RefreshToken {
+  refreshToken: string | undefined
+}
+
+export const refreshToken = (variables: RefreshToken): Action => ({
   type: REFRESH_TOKEN,
   request: {
     query: gql.refreshToken(),

@@ -1,9 +1,9 @@
 import gql from 'graphql-tag'
 import { Config } from '@outcast.by/js-ext'
-import additionalVariables from '../additionalVariables'
+import AdditionalVariables from '../../core/gql/AdditionalVariables'
 
 export default (): any => gql`
-  mutation restorePassword($entity: RestoreParams ${additionalVariables()}) {
+  mutation restorePassword($entity: RestoreParams ${AdditionalVariables.run()}) {
     restorePassword(entity: $entity) {
       ...AuthFields
     }

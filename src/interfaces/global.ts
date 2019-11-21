@@ -1,4 +1,4 @@
-import Dictionary from './Dictionary'
+import { Dictionary } from '@outcast.by/js-ext'
 
 declare global {
   interface Window {
