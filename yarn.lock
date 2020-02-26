@@ -314,10 +314,10 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
-"@outcast.by/js-ext@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@outcast.by/js-ext/-/js-ext-0.1.8.tgz#59db4a2f8816ba3556b17739ad2fd7923588d280"
-  integrity sha512-LLki3CVjZtiQXL07+o6eJLM+bCUOAJ3TuGLqQ5uNyJk+0jUFtNOWCFA0tWU5fup86dj7nrr21fFhMXIih+Jvvw==
+"@outcast.by/js-ext@^0.1.17":
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/@outcast.by/js-ext/-/js-ext-0.1.17.tgz#602cd988086beefeec4d8b4378f6b7c94071fe81"
+  integrity sha512-SgnXTkP2DwQzEuzjJchxvz5G2q2ZTLRM5KjL85hYlUDtOjCJ/CPR/nDZWfQd9A5xDbTz6gdt2hCnwmRiQIhRIA==
   dependencies:
     "@types/js-cookie" "^2.2.1"
     "@types/lodash" "^4.14.144"
