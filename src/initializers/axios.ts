@@ -25,8 +25,9 @@ const authAxiosInitializer = (axios: AxiosStatic): void => {
 
   axios.interceptors.request.use(
     (request) => {
-      if (Cookies.get(Config.get(['jsAuth', 'accessTokenKey']))) {
-        request.headers.common['Authorization'] = Cookies.getDecrypted('accessToken')
+      const accessTokenKey = Config.get(['jsAuth', 'accessTokenKey'])
+      if (Cookies.get(accessTokenKey)) {
+        request.headers.common['Authorization'] = Cookies.getDecrypted(accessTokenKey)
       }
       return request
     },
@@ -42,12 +43,14 @@ const authAxiosInitializer = (axios: AxiosStatic): void => {
 
     if (data === 'invalid_access_token') {
       const token = Cookies.getDecrypted(Config.get(['jsAuth', 'refreshTokenKey']))
+      const deviceUuid = Cookies.getDecrypted(Config.get(['jsAuth', 'deviceUuidKey']))
+
       if (!state.isRefreshing) {
         state = { ...state, isRefreshing: true }
 
         const dispatch = Config.get(['jsAuth', 'dispatch'])
 
-        dispatch(refreshToken({ refreshToken: token }))
+        dispatch(refreshToken({ refreshToken: token, deviceUuid }))
           .then((response: Dictionary<any>) => {
             const { accessToken } = response
             state.isRefreshing = false

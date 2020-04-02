@@ -3,7 +3,7 @@
 ## Content
 
 * [Action creators](#action-creators):
-   - for auth: [`signIn`](#signin), [`signUp`](#signup), [`forgotPassword`](#forgotpassword), 
+   - for auth: [`signIn`](#signin), [`signUp`](#signup), [`forgotPassword`](#forgotpassword),
    [`restorePassword`](#restorepassword), [`logout`](#logout), [`refreshToken`](#refreshtoken)
    - for oauth: [`getTwitterAuthUrl`](#gettwitterauthurl), [`complete`](#complete)
 * Action types:
@@ -54,17 +54,17 @@ signUp({ variables: { entity: { email: 'email', password: 'password', passwordCo
 
 If you use `Base Form` pass it as `onSubmit` prop
 
-If you need to pass extraParams, declare function `gatherVariables` and pass it to `Form`
+If you need to pass extraParams, declare function `amendVariables` and pass it to `Form`
 
 ```javascript
-const gatherVariables = (state) => {
-  return { entity: { ..._.omit(state, 'errors'), extraParams: LocalStorage.getIn('extraParams') } }
+const amendVariables = (variables) => {
+  return { ...variables, extraParams: LocalStorage.getIn('extraParams') } }
 }
 
 <Form
   ...
   onSubmit={signUp}
-  gatherVariables={gatherVariables}
+  amendVariables={amendVariables}
   ...
 />
 ```
@@ -77,17 +77,17 @@ Takes object as variables for the gql request:
 forgotPassword({ variables: { entity: { email: 'email', restoreUrl: `${window.location.origin}/auth/restore` } } })
 ```
 
-If you use `Base Form` pass it as `onSubmit` prop and declare function `gatherVariables`.
+If you use `Base Form` pass it as `onSubmit` prop and declare function `amendVariables`.
 
 ```javascript
-const gatherVariables = (state) => {
-  return { entity: { restoreUrl: `${window.location.origin}/auth/restore`, ..._.omit(state, ['errors']) } }
+const amendVariables = (variables) => {
+  return { ...variables, entity: { ...variables.entity, restoreUrl: `${window.location.origin}/auth/restore` } }
 }
 
 <Form
   ...
   onSubmit={forgotPassword}
-  gatherVariables={gatherVariables}
+  amendVariables={amendVariables}
   ...
 />
 ```
@@ -101,21 +101,21 @@ restorePassword({
   variables: { entity: { restoreHash: 'hash', password: 'password', passwordConfirmation: 'password' } },
 })
 ```
-`hash` locate in query string of url 
+`hash` locate in query string of url
 
-If you use `Base Form` pass it as `onSubmit` prop and declare function `gatherVariables`.
+If you use `Base Form` pass it as `onSubmit` prop and declare function `amendVariables`.
 
 ```javascript
 const { hash } = queryString.parse(window.location.search)
 
-const gatherVariables = (state) => {
-  return { entity: { restoreHash: hash, ..._.omit(state, ['errors']) } }
+const amendVariables = (variables) => {
+  return { ...variables, entity: { ...variables.entity, restoreHash: hash } }
 }
 
 <Form
   ...
   onSubmit={restorePassword}
-  gatherVariables={gatherVariables}
+  amendVariables={amendVariables}
   ...
 />
 ```
@@ -128,7 +128,7 @@ refreshToken({ variables: { entity: { refreshToken: `refreshToken` } } })
 ```
 
 ### `logout`
-Used without variables 
+Used without variables
 ```javascript
 logout()
 ```
@@ -137,23 +137,23 @@ logout()
 Takes object as variables for the gql request:
 
 ```javascript
-restorePassword({
+complete({
   variables: { entity: entityParams, oauthData: { uid: 'uid', provider: 'GOOGLE' } },
 })
 ```
 
-If you use `Base Form` pass it as `onSubmit` prop and declare function `gatherVariables`.
+If you use `Base Form` pass it as `onSubmit` prop and declare function `amendVariables`.
 
 ```javascript
-const gatherVariables = (state) => {
-    const { uid, provider } = oauthData
-    return { entity: _.omit(state, ['errors']), oauthData: { uid, provider: provider.toUpperCase() } }
+const amendVariables = (variables) => {
+  const { uid, provider } = oauthData
+  return { ...variables, oauthData: { uid, provider: provider.toUpperCase() } }
 }
 
 <Form
   ...
   onSubmit={complete}
-  gatherVariables={gatherVariables}
+  amendVariables={amendVariables}
   ...
 />
 ```
@@ -217,6 +217,7 @@ import LocalStorage from 'utils/LocalStorage'
 export default {
   accessTokenKey: 'accessToken',
   refreshTokenKey: 'refreshToken',
+  deviceUuidKey: 'deviceUuid',
   dispatch: store.dispatch,
   fields: FIELDS,
   gqlVariables: { filter: 'String', limit: 'Int', order: 'String' },
@@ -227,9 +228,9 @@ export default {
 }
 ```
 
-`accessTokenKey` and `refreshTokenKey` - keys for storing and getting `accessToken` and `refreshToken` from cookies  
-`dispatch` - used for `dispatch` actions in lib  
-`fields` - fields for gql requests  
+`accessTokenKey`, `refreshTokenKey` and `deviceUuidKey` - keys for storing and getting `accessToken`, `refreshToken` and `deviceUuid` from cookies
+`dispatch` - used for `dispatch` actions in lib
+`fields` - fields for gql requests
 `gqlVariables` - additional variables for gql requests
 `extraParams` - using for creating new user by oauth with additional params
 `facebookId` and `googleClientId` - data for providers oauth
@@ -247,6 +248,7 @@ export default {
      fragment AuthFields on Auth {
        accessToken
        refreshToken
+       deviceUuid
        currentUser {
          ...UserFields
        }
@@ -254,3 +256,17 @@ export default {
      ${USER_FIELDS}
    `
    ```
+3. Save `accessToken`, `refreshToken` and `deviceUuid` to cookies
+  Example (by redux watcher):
+  ```javascript
+  export function* genStoreJWT ({ data: { accessToken, refreshToken, deviceUuid } }) {
+    yield Cookies.set(Config.get(['jsAuth','accessTokenKey']), accessToken)
+    yield Cookies.set(Config.get(['jsAuth','refreshTokenKey']), refreshToken)
+    yield Cookies.set(Config.get(['jsAuth','deviceUuidKey']), deviceUuid)
+    yield LocalStorage.setIn('ownerUuid', null)
+  }
+
+  export const watchers = [
+    takeLatest([SIGN_IN, SIGN_UP, PROVIDER_LOGIN, RESTORE_PASSWORD, REFRESH_TOKEN, COMPLETE], genStoreJWT),
+  ]
+  ```
