@@ -1,5 +1,6 @@
 import { Action, Dictionary } from '@outcast.by/js-ext'
 import gql from '../gql/auth'
+import { Cookies, Config } from '@outcast.by/js-ext'
 
 export const SIGN_IN = 'auth/SIGN_IN'
 export const SIGN_UP = 'auth/SIGN_UP'
@@ -20,13 +21,17 @@ interface SignIn {
   password: string
 }
 
-export const signIn = ({ variables: { entity } }: Params<SignIn>): Action => ({
-  type: SIGN_IN,
-  request: {
-    query: gql.signIn(),
-    variables: entity,
-  },
-})
+export const signIn = ({ variables: { entity } }: Params<SignIn>): Action => {
+  const deviceUuid = Cookies.getDecrypted(Config.get(['jsAuth', 'deviceUuidKey']))
+
+  return {
+    type: SIGN_IN,
+    request: {
+      query: gql.signIn(),
+      variables: { ...entity, deviceUuid },
+    },
+  }
+}
 
 interface SignUp {
   email: string
@@ -61,13 +66,17 @@ interface RestorePassword {
   passwordConfirmation: string
 }
 
-export const restorePassword = ({ variables }: Params<RestorePassword>): Action => ({
-  type: RESTORE_PASSWORD,
-  request: {
-    query: gql.restorePassword(),
-    variables,
-  },
-})
+export const restorePassword = ({ variables }: Params<RestorePassword>): Action => {
+  const deviceUuid = Cookies.getDecrypted(Config.get(['jsAuth', 'deviceUuidKey']))
+
+  return {
+    type: RESTORE_PASSWORD,
+    request: {
+      query: gql.restorePassword(),
+      variables: { ...variables, deviceUuid },
+    },
+  }
+}
 
 interface ProviderLogin {
   payload: string
@@ -75,13 +84,17 @@ interface ProviderLogin {
   extraParams: object | null
 }
 
-export const providerLogin = (variables: ProviderLogin): Action => ({
-  type: PROVIDER_LOGIN,
-  request: {
-    query: gql.providerAuth(),
-    variables,
-  },
-})
+export const providerLogin = (variables: ProviderLogin): Action => {
+  const deviceUuid = Cookies.getDecrypted(Config.get(['jsAuth', 'deviceUuidKey']))
+
+  return {
+    type: PROVIDER_LOGIN,
+    request: {
+      query: gql.providerAuth(),
+      variables: { ...variables, deviceUuid },
+    },
+  }
+}
 
 interface GetTwitterAuthUrl {
   getTwitterAuthUrl: string
@@ -102,13 +115,17 @@ interface CompleteParams {
   }
 }
 
-export const complete = ({ variables }: CompleteParams): Action => ({
-  type: COMPLETE,
-  request: {
-    query: gql.completeOauth(),
-    variables,
-  },
-})
+export const complete = ({ variables }: CompleteParams): Action => {
+  const deviceUuid = Cookies.getDecrypted(Config.get(['jsAuth', 'deviceUuidKey']))
+
+  return {
+    type: COMPLETE,
+    request: {
+      query: gql.completeOauth(),
+      variables: { ...variables, deviceUuid },
+    },
+  }
+}
 
 export const logout = (): Action => ({
   type: LOGOUT,
@@ -116,6 +133,7 @@ export const logout = (): Action => ({
 
 interface RefreshToken {
   refreshToken: string | undefined
+  deviceUuid: string | undefined
 }
 
 export const refreshToken = (variables: RefreshToken): Action => ({

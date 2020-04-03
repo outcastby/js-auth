@@ -3,8 +3,8 @@ import { Config } from '@outcast.by/js-ext'
 import AdditionalVariables from '../../core/gql/AdditionalVariables'
 
 export default (): any => gql`
-  mutation CompleteOauth($entity: OauthManagerParams, $oauthData: OauthDataParams ${AdditionalVariables.run()}) {
-    completeOauth(entity: $entity, oauthData: $oauthData) {
+  mutation CompleteOauth($entity: OauthManagerParams, $oauthData: OauthDataParams, $deviceUuid: String ${AdditionalVariables.run()}) {
+    completeOauth(entity: $entity, oauthData: $oauthData, deviceUuid: $deviceUuid) {
       ...AuthFields
     }
   }
