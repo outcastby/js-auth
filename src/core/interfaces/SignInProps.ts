@@ -3,5 +3,6 @@ export default interface SignInProps {
   provider: string
   setCompleteAuth: Function
   onSuccess: Function
+  onError?: Function
   pushToHistory: Function
 }

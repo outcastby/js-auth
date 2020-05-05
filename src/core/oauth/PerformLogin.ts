@@ -3,7 +3,7 @@ import { Config, Dictionary } from '@outcast.by/js-ext'
 import { providerLogin } from '../../redux/actions'
 
 export default {
-  run: ({ oauthData, provider, setCompleteAuth, onSuccess, pushToHistory }: SignInProps): any => {
+  run: ({ oauthData, provider, setCompleteAuth, onSuccess, pushToHistory, onError }: SignInProps): any => {
     const extraParams = Config.get(['jsAuth', 'extraParams']) ? Config.get(['jsAuth', 'extraParams'])() : null
     const dispatch = Config.get(['jsAuth', 'dispatch'])
 
@@ -20,6 +20,8 @@ export default {
           if (message === 'authorization_not_complete') {
             setCompleteAuth({ missingFields: missingFields, oauthData, isShowCompleteAuth: true })
             pushToHistory('/auth/complete_oauth')
+          } else if (onError) {
+            onError(errors)
           }
         }
       })
